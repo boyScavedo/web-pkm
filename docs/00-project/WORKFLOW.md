@@ -17,7 +17,9 @@ issue/*   ──PR──► dev        (human-reviewed, only when green)
 - **`dev`** — integration trunk. Every `feature/*`, `issue/*`, `fix/*` merges
   here. This is also the Vercel preview/production frontier before release.
 - **`feature/*`** — phase work. One branch per feature, its own unit + E2E tests.
+  Merges to `dev` via **squash** PR; branch deleted after merge.
 - **`issue/*`** / **`fix/*`** — created from a GitHub issue; fixes any defect.
+  Merges to `dev` via **squash** PR.
 
 ## Databases (Neon)
 
@@ -71,7 +73,14 @@ npm run lint
 
 - Conventional Commits. One logical change per commit.
 - Chronological order on `dev`; feature/issue merges squash in merge order.
-- `dev` → `main` is a human-reviewed PR, never auto-merged.
+- **Merge strategy (enforced in GitHub settings + branch protection):**
+  - `feature/*` → `dev` and `issue/*` → `dev`: **squash and merge** — one commit
+    per logical change on `dev`, branch auto-deleted. Every PR stays open forever
+    (squash commit links to `refs/pull/N/merge`), so per-commit WIP detail and
+    review discussion remain the canonical debug record.
+  - `dev` → `main`: **merge commit**, human-reviewed, never auto-merged.
+- Branch protection: `dev` and `main` require a PR, require the `test` CI check,
+  and block direct pushes. `main` also enforces on admins.
 - If a merged change is later found buggy: `gh issue create` → `fix/*` branch →
   PR → merge to `dev` → regression → main.
 - Commits touching `.env*` are forbidden. Secrets live in `.env.local`
