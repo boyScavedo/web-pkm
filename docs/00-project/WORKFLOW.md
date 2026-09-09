@@ -23,18 +23,62 @@ issue/*   ──PR──► dev        (human-reviewed, only when green)
 
 ## Databases (Neon)
 
-Neon branches mirror git branches exactly.
+Actual topology (verified 2026-09-09): PRD and DEV are TWO separate Neon
+projects; `preview` is a branch inside the PRD project. NOT one project with
+mirroring branches.
 
 | Git | Neon | Env vars |
 |-----|------|----------|
-| `main` | `main` | `PROD_DATABASE_URL`, `PROD_DATABASE_URL_UNPOOLED` |
-| `dev`, `feature/*`, `issue/*` | `development` | `DEV_DATABASE_URL`, `DEV_DATABASE_URL_UNPOOLED` |
+| `main` | PRD project (`ep-patient-glitter-awvt49ko`), main branch | `PROD_DATABASE_URL`, `PROD_DATABASE_URL_UNPOOLED` |
+| `dev`, `feature/*`, `issue/*` | DEV project (`ep-ancient-star-aw8qjebk`) | `DEV_DATABASE_URL`, `DEV_DATABASE_URL_UNPOOLED` |
+| Vercel previews | `preview` branch in PRD project | `PREVIEW_DATABASE_URL`, `PREVIEW_DATABASE_URL_UNPOOLED` |
 
-- The **active** DB is `DATABASE_URL` / `DATABASE_URL_UNPOOLED`. Locally and in
-  Vercel preview it points at `development`; production deploy points it at `main`.
+- The **active** DB is `DATABASE_URL` / `DATABASE_URL_UNPOOLED`. Locally it
+  points at `development`; Vercel preview deployments point it at `preview`;
+  production deploy points it at `production`. Vercel scopes: preview env uses
+  `DATABASE_URL`/`DATABASE_URL_UNPOOLED` = `PREVIEW_*` (pooled + direct); prod
+  env uses `PROD_*`.
 - Migrations ALWAYS run against `*_UNPOOLED` — pgbouncer/pooled rejects DDL.
-- Extension requirements: `ltree`, `pg_trgm` must exist on the branch before
-  the migration that references them runs.
+- Structure-to-a-DB order is strict: (1) `CREATE EXTENSION ltree`, (2) `CREATE
+  EXTENSION pg_trgm`, (3) `db:migrate` (drizzle), (4) `psql ... -f
+  src/lib/db/triggers.sql`.
+
+## DB staging runbook (dev → main promotion)
+
+Production DB is not migrated until the promoted code is verified in preview.
+Structure is staged on a fresh `preview` branch first; Vercel previews exercise
+it; production is migrated at merge time.
+
+1. `dev` fully green (test gate below) → open the `dev` → `main` PR (always).
+2. **Stage the preview DB.** Refresh the PRD `preview` branch from the PRD main
+   snapshot (or recreate it), then apply structure to it in the strict order
+   above. `neonctl` commands (run from the PRD project context):
+   ```bash
+   neonctl branches create --name preview --project-id awvt49ko --type read_write
+   # URLs: neonctl connection-strings --branch preview --project-id awvt49ko \
+   #        --role neondb_owner --pooled / --direct
+   neonctl extensions create ltree    --branch preview --project-id awvt49ko
+   neonctl extensions create pg_trgm  --branch preview --project-id awvt49ko
+   DATABASE_URL_UNPOOLED=<preview direct> npm run db:migrate
+   psql <preview direct> -f src/lib/db/triggers.sql
+   ```
+3. **Wait for the Vercel preview deployment** of the dev→main PR (already
+   wired to `preview`; see env scopes above). Human verifies it end to end.
+   Confirm the preview DB holds the new schema (`\dt` shows the struct).
+4. Merge `dev` → `main`. **Immediately migrate production** in the same strict
+   order using `PROD_DATABASE_URL_UNPOOLED`:
+   ```bash
+   psql "$PROD_DATABASE_URL_UNPOOLED" -c 'CREATE EXTENSION IF NOT EXISTS ltree; CREATE EXTENSION IF NOT EXISTS pg_trgm;'
+   DATABASE_URL_UNPOOLED="$PROD_DATABASE_URL_UNPOOLED" npm run db:migrate
+   psql "$PROD_DATABASE_URL_UNPOOLED" -f src/lib/db/triggers.sql
+   ```
+   If the production migration fails, the PR is reverted before it ships —
+   the preview branch still holds the identical, verified schema for reference.
+5. Smoke-test production.
+
+Existing dev data is never in preview: preview is a schema-validation env that
+snapshots the production base and applies the incoming migrations. Test data
+lives in the DEV project.
 
 ## Phase workflow (strict order)
 
