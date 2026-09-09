@@ -8,6 +8,14 @@
   (`psql db -f src/lib/db/triggers.sql` after `db:migrate`).
 - Neon project has no `preview` branch — `development` doubles as preview
   (Vercel previews and local work all use DEV_*).
+- Notes list is capped at 50 rows on the UI page (service default 20,
+  clamp 100) with no load-more control yet.
+- Soft-deleted notes have no trash/restore UI (REST endpoint exists;
+  restore is exercised by tests only).
+- Notes E2E rows are soft-deleted, not removed, so the `notes` table
+  accumulates one soft-deleted row per E2E run until a hard-cleanup exists.
+- `next dev` logs `The destination stream closed early` intermittently
+  during E2E navigations; tests pass and it does not reproduce on `build`.
 
 ## Risks
 
