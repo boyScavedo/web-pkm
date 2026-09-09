@@ -21,11 +21,21 @@ These rules are binding for every contribution, human or agent.
 
 ## Databases (Neon)
 
-Two Neon branches, mirroring git:
-- `main` branch → `PROD_DATABASE_URL` / `PROD_DATABASE_URL_UNPOOLED`
-- `development` branch → `DEV_DATABASE_URL` / `DEV_DATABASE_URL_UNPOOLED` (git `dev` + all feature/* work)
+ONE Neon project, branches mirror git (verified 2026-09-09):
+project `web_pkm_db` (`orange-frog-96906790`), org
+`org-falling-dust-51173652`. No pooling (direct endpoints only).
 
-The active database is `DATABASE_URL` / `DATABASE_URL_UNPOOLED`. Local development and Vercel previews point it at the `development` branch; production deploy points it at the `main` branch. Migrations run against `*_UNPOOLED` (direct connection; pooled rejects DDL).
+- `main` branch → `PROD_DATABASE_URL` / `PROD_DATABASE_URL_UNPOOLED` (git `main`).
+  Migrated ONLY inside the dev→main runbook after preview verifies the schema.
+- `development` branch → `DEV_DATABASE_URL` / `DEV_DATABASE_URL_UNPOOLED` (git `dev` + all feature/* work).
+- `preview` branch → `PREVIEW_DATABASE_URL` / `PREVIEW_DATABASE_URL_UNPOOLED` (Vercel previews).
+
+The active database is `DATABASE_URL` / `DATABASE_URL_UNPOOLED`. Local dev and
+integration tests point it at `development`; Vercel preview scope points it at
+`preview`; production deploy points it at `production`. Migrations run against
+`*_UNPOOLED` (direct connection; pooled rejects DDL). See WORKFLOW.md "DB
+staging runbook" for the dev→main structure gate: one strict order — extensions
+(`ltree`, `pg_trgm`) → `db:migrate` → `triggers.sql`.
 
 ## Phase workflow (in order)
 
