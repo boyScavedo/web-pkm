@@ -42,6 +42,7 @@ export async function GET(req: NextRequest) {
     const order = sp.get("order");
     const limit = sp.get("limit");
     const offset = sp.get("offset");
+    const folder = sp.get("folder");
 
     if (para && !isPara(para)) {
       return fail(new NotesError("Invalid para filter", "VALIDATION"));
@@ -61,11 +62,19 @@ export async function GET(req: NextRequest) {
     if ((limit && !/^\d+$/.test(limit)) || (offset && !/^\d+$/.test(offset))) {
       return fail(new NotesError("Invalid pagination", "VALIDATION"));
     }
+    let folderId: number | undefined;
+    if (folder !== null) {
+      if (!/^\d+$/.test(folder)) {
+        return fail(new NotesError("Invalid folder filter", "VALIDATION"));
+      }
+      folderId = Number(folder);
+    }
 
     const result = await listNotes(workspaceId, {
       para: para ? (para as ParaCategory) : undefined,
       status: status ? (status as NoteStatus) : undefined,
       favorite,
+      folderId,
       sort: sort as "updated_at" | "created_at" | "title" | undefined,
       order: order as "asc" | "desc" | undefined,
       limit: limit ? Number(limit) : undefined,
@@ -107,8 +116,12 @@ export async function POST(req: NextRequest) {
     if (body.isFavorite !== undefined && !isBool(body.isFavorite)) {
       return fail(new NotesError("isFavorite must be boolean", "VALIDATION"));
     }
-    if (body.folderId !== undefined && typeof body.folderId !== "number") {
-      return fail(new NotesError("folderId must be a number", "VALIDATION"));
+    if (
+      body.folderId !== undefined &&
+      body.folderId !== null &&
+      typeof body.folderId !== "number"
+    ) {
+      return fail(new NotesError("folderId must be a number or null", "VALIDATION"));
     }
 
     const note = await createNote(workspaceId, {
@@ -117,7 +130,7 @@ export async function POST(req: NextRequest) {
       para: body.para as ParaCategory | undefined,
       status: body.status as NoteStatus | undefined,
       isFavorite: body.isFavorite as boolean | undefined,
-      folderId: body.folderId as number | undefined,
+      folderId: body.folderId as number | null | undefined,
     });
 
     return ok({ note: serializeNote(note) }, 201);

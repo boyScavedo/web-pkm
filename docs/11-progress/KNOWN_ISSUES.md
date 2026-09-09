@@ -14,10 +14,14 @@
 - Older preview deployments also lacked `AUTH_SECRET` (MissingSecret on
   `/api/auth/callback/credentials`) — confirm it is set in the Vercel preview
   scope alongside the DB URLs.
-- Vault is mid-transition (Phase 03): the file explorer is an empty state, the
-  editor is the legacy /notes form, and legacy notes/folders/tags/projects
-  pages are still reachable by URL without prominent navigation. Retired as
-  each Stage 03.x lands (tree 03.2, editor 03.3).
+- Vault is mid-transition (Phase 03): the editor is the legacy /notes form and
+  legacy notes/folders/tags/projects pages are still reachable by URL without
+  prominent navigation. Retired as each Stage 03.x lands (editor 03.3).
+- Explorer lists up to 100 most-recent notes (`?limit=100`); full uncapped
+  tree + virtualized rows when real vaults outgrow it (ponytail: noted in
+  FileExplorer.tsx).
+- Explorer "New note" only creates at folder scope; new-folders-inside-new-
+  folders via the context menu reopens on the same tree after reload.
 - Properties panel ("+ new metadata") not yet built — the note_properties
   table exists but nothing writes or reads it (03.4).
 - Plugin system + graph view not yet built (03.7).

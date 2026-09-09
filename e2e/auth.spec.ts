@@ -25,7 +25,6 @@ test("vault frame renders after sign-in", async ({ page }) => {
   await page.getByRole("button", { name: /sign in/i }).click();
   await expect(page).toHaveURL(/\/$/);
   await expect(page.getByTestId("ribbon-vault")).toBeVisible();
-  await expect(page.getByTestId("explorer-empty")).toBeVisible();
   await expect(page.getByTestId("status-bar")).toBeVisible();
   await expect(page.getByText(/select a note to open it/i)).toBeVisible();
 });

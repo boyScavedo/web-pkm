@@ -50,11 +50,11 @@ test("create a note, edit it, and delete it", async ({ page }) => {
 
   // delete
   await page.goto(`/notes`, { waitUntil: "networkidle" });
-  await page.getByText(`${title}-v2`).click();
+  await page.getByRole("main").getByText(`${title}-v2`).click();
   page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: /delete/i }).click();
   await expect(page).toHaveURL(/\/notes$/);
 
   // gone from the list
-  await expect(page.getByText(`${title}-v2`)).toHaveCount(0);
+  await expect(page.getByRole("main").getByText(`${title}-v2`)).toHaveCount(0);
 });
