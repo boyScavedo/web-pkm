@@ -22,6 +22,12 @@
   FileExplorer.tsx).
 - Explorer "New note" only creates at folder scope; new-folders-inside-new-
   folders via the context menu reopens on the same tree after reload.
+- Vercel **Production** env had a base64 Neon connection secret in
+  `DATABASE_URL` (Neon integration auto-install) instead of a
+  `postgresql://` URL, crashing the production build at auth module eval
+  ("not a valid URL"). Replaced with the real PROD URL 2026-09-09; the
+  Development scope still holds the integration value (only affects
+  `vercel dev`, which is unused — local dev uses `.env`).
 - Properties panel ("+ new metadata") not yet built — the note_properties
   table exists but nothing writes or reads it (03.4).
 - Plugin system + graph view not yet built (03.7).
