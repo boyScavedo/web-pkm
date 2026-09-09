@@ -16,6 +16,11 @@
   accumulates one soft-deleted row per E2E run until a hard-cleanup exists.
 - `next dev` logs `The destination stream closed early` intermittently
   during E2E navigations; tests pass and it does not reproduce on `build`.
+- Sidebar and note-list symbols (`📄`, `#`, `▸`, `●`, `⊡`, `▣`, `▢`, `◇`,
+  `▧`, `☆`, `★`) are placeholder emoji/Unicode glyphs that read as
+  AI-generated. Banned by DESIGN_SYSTEM.md Iconography; replace with one
+  coherent stroke-based SVG set (Feather/Lucide grammar, 24px / 1.5-2px,
+  `fg`/`accent`).
 
 ## Risks
 
