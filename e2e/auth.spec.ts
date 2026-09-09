@@ -5,24 +5,27 @@ import { expect, test } from "@playwright/test";
 const EMAIL = process.env.PKM_EMAIL ?? "pkm@local";
 const PASSWORD = process.env.PKM_PASSWORD ?? "changeme";
 
-test("unauthenticated /notes redirects to /sign-in", async ({ page }) => {
-  await page.goto("/notes");
+test("unauthenticated / redirects to /sign-in", async ({ page }) => {
+  await page.goto("/");
   await expect(page).toHaveURL(/\/sign-in/);
 });
 
-test("sign in with credentials redirects to /notes", async ({ page }) => {
+test("sign in with credentials lands on the vault", async ({ page }) => {
   await page.goto("/sign-in");
   await page.getByLabel("email").fill(EMAIL);
   await page.getByLabel("password").fill(PASSWORD);
   await page.getByRole("button", { name: /sign in/i }).click();
-  await expect(page).toHaveURL(/\/notes$/);
+  await expect(page).toHaveURL(/\/$/);
 });
 
-test("notes page renders after sign-in", async ({ page }) => {
+test("vault frame renders after sign-in", async ({ page }) => {
   await page.goto("/sign-in");
   await page.getByLabel("email").fill(EMAIL);
   await page.getByLabel("password").fill(PASSWORD);
   await page.getByRole("button", { name: /sign in/i }).click();
-  await expect(page).toHaveURL(/\/notes$/);
-  await expect(page.getByRole("heading", { name: /notes/i })).toBeVisible();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByTestId("ribbon-vault")).toBeVisible();
+  await expect(page.getByTestId("explorer-empty")).toBeVisible();
+  await expect(page.getByTestId("status-bar")).toBeVisible();
+  await expect(page.getByText(/select a note to open it/i)).toBeVisible();
 });

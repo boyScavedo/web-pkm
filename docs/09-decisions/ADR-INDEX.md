@@ -3,7 +3,7 @@
 | ADR | Title | Status |
 |-----|-------|--------|
 | 001 | Drizzle ORM | Accepted |
-| 002 | Tiptap v3 Editor | Accepted |
+| 002 | Tiptap v3 Editor | Superseded by 013 |
 | 003 | NextAuth v5 / Auth.js | Accepted |
 | 004 | Cloudflare R2 Storage | Accepted |
 | 005 | PostgreSQL FTS + pg_trgm Search | Accepted |
@@ -14,3 +14,6 @@
 | 010 | Junction Table Tags | Accepted |
 | 011 | Adjacency List Link Graph | Accepted |
 | 012 | Full Snapshot Revisions | Accepted |
+| 013 | CodeMirror 6 Editor | Accepted (supersedes 002) |
+| 014 | Properties Source of Truth (note_properties) | Accepted |
+| 015 | Plugin Architecture (curated bundles) | Accepted |

@@ -4,12 +4,32 @@ All notable changes to the web-pkm project.
 
 Format: YYYY-MM-DD — description.
 
+## 2026-09-09 — Phase 03 Stage 0: Obsidian 1:1 frame + foundations
+
+- Product redirect: the vault is now an Obsidian 1:1 (design no difference).
+  PARA removed from the vault UI; columns/API remain for the separate
+  dashboard project that consumes this project's API.
+- Vault frame on the (app) layout: Ribbon, FileExplorer, TabStrip,
+  StatusBar; vault home at `/`; retired Sidebar/Topbar (PARA + system nav)
+  and their placeholder Unicode glyphs.
+- ADR-013 (CodeMirror 6 editor, supersedes ADR-002/Tiptap), ADR-014
+  (properties source of truth = note_properties), ADR-015 (plugin framework,
+  curated bundles first). OBSIDIAN_ANALYSIS, DESIGN_SYSTEM, FUTURE,
+  PHASE-03 overwritten for the new direction.
+- E2E: auth.spec rewritten for the vault frame; vault.spec added; notes.spec
+  sign-in helper updated (sign-in now lands on `/`).
+- Legacy notes/folders/tags/projects routes remain reachable by URL during
+  the transition; the explorer's new-note action links there until the
+  editor lands (03.3).
+
 ## 2026-09-09 — Workspace provisioning race fix
 
 - `getOrCreateDefaultWorkspace` extracted to conflict-safe
   `provisionWorkspace(slug, name)`: on first use, concurrent callers
   (layout + page) no longer duel on `workspaces_slug_unique`
   (surfaced by preview-branch staging, issue #8)
+- `db.test.ts` workspace assertion now tolerates transient `itest-*`
+  integration-test workspaces (parallel-file flake fix, PR #10)
 
 ## 2026-09-09 — Phase 02: Notes CRUD
 
@@ -27,8 +47,6 @@ Format: YYYY-MM-DD — description.
   self-cleaning markers), E2E (create → edit → para filter → delete)
 - `db.test.ts` pristine-workspace assertion replaced (app now provisions
   one `default` workspace); stale empty-vault E2E assertion replaced
-- MASTER_PLAN renumbered (old "PKM Database" phase was absorbed into 01;
-  02 = Notes CRUD; Tiptap editor → 03)
 - Full gate green: typecheck, lint, 15 unit + 16 integration + 4 E2E, build
 
 ## 2026-09-09 — Workflow enforced: squash feature→dev, merge-commit dev→main
@@ -80,7 +98,7 @@ Format: YYYY-MM-DD — description.
 - Designed database schema (14 tables, 15+ indexes)
 - Analyzed storage budget: comfortable within 0.5GB Neon limit
 - Documented migration strategy: pg_dump/pg_restore to VPS PostgreSQL
-- Selected stack: Drizzle ORM, Tiptap v3, NextAuth v5, Cloudflare R2, PostgreSQL FTS
+- Selected stack: Drizzle ORM, CodeMirror 6 (now), NextAuth v5, Cloudflare R2, PostgreSQL FTS
 - Created 12 ADRs documenting architectural decisions
 - Defined design system (AMOLED black, cyan accent, monospace)
 - Defined API specification

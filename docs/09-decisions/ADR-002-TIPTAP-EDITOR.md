@@ -2,7 +2,13 @@
 
 ## Status
 
-Accepted
+Superseded by ADR-013 (CodeMirror 6 editor).
+
+## Status history
+
+**Accepted** in Phase 00 for a WYSIWYG markdown editor. **Superseded**
+2026-09-09: the product became an Obsidian 1:1 vault, and Obsidian's writing
+experience is CodeMirror 6 source / live preview / reading — not WYSIWYG.
 
 ## Context
 
