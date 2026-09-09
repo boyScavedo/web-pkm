@@ -7,3 +7,51 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+# Workflow Contract (hard rules)
+
+These rules are binding for every contribution, human or agent.
+
+## Branch model
+
+- `main` — production. Only reached via `dev` after a full green regression. Nobody commits to `main` directly.
+- `dev` — integration trunk. All `feature/*`, `issue/*`, `fix/*` branches merge here. This is where integration happens; also the Vercel preview deployment.
+- `feature/*` — phase work. Each feature gets its own branch with its own unit + E2E tests.
+- `issue/*` or `fix/*` — bug fixes. Created from a GitHub issue.
+
+## Databases (Neon)
+
+Two Neon branches, mirroring git:
+- `main` branch → `PROD_DATABASE_URL` / `PROD_DATABASE_URL_UNPOOLED`
+- `development` branch → `DEV_DATABASE_URL` / `DEV_DATABASE_URL_UNPOOLED` (git `dev` + all feature/* work)
+
+The active database is `DATABASE_URL` / `DATABASE_URL_UNPOOLED`. Local development and Vercel previews point it at the `development` branch; production deploy points it at the `main` branch. Migrations run against `*_UNPOOLED` (direct connection; pooled rejects DDL).
+
+## Phase workflow (in order)
+
+1. **Check GitHub for existing open issues.** Any open → fix serially, no subagents: create `issue/*` or `fix/*` branch → `gh` PR → tests → merge to `dev`. Repeat until `dev` has zero open issues.
+2. **New-issue scan (optional chore).** Scan only the last few commits, not the whole codebase. If issues found → report only, do not fix.
+3. **Write the phase.** Analyze phase docs. Up to 3 subagents, each on its own `feature/*` branch, each with unit + E2E tests.
+4. **Merge features to `dev`.** Rerun all unit tests. If failures → fix issues → re-merge to `dev` → rerun until green.
+5. **Full regression** on `dev`: all unit tests + all E2E tests. Only when this passes, merge `dev` → `main`.
+
+## Test gate (mandatory before every commit and merge)
+
+- `npm run test` runs EVERYTHING at once: unit + integration + E2E.
+- `npm run typecheck` and `npm run lint` must pass.
+- E2E runs on every `feature/*` and `issue/*` merge, not just main.
+
+## Commits
+
+- Conventional commits. One logical change per commit.
+- Chronological history on `dev`. Feature/issue merges to `dev` may be auto-merged (squash) preserving order.
+- `dev` → `main` merge is always reviewed by the human — never auto-merged.
+- If a committed change is later found buggy: open a GitHub issue (`gh issue create`), then fix via an `issue/*`/`fix/*` branch → PR → merge to `dev`.
+
+## Agent rules
+
+- No untested code reaches `main`. If you cannot run the full test suite, say so and block the merge.
+- Tests must be legitimate: unit tests (Vitest) + integration (real DB) + E2E (Playwright). No fake/empty stubs to "pass".
+- Max 3 parallel subagents during phase work; serial fixes for issue triage (issues depend on each other's data).
+- Update `docs/00-project/CURRENT_STATE.md`, `docs/11-progress/CHANGELOG.md`, `docs/11-progress/KNOWN_ISSUES.md` as part of any phase completion.
+- Secrets live in `.env.local` (gitignored, chmod 600). `.env` holds DB URLs and is also gitignored. Never commit either.

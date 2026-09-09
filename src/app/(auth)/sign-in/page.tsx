@@ -18,7 +18,13 @@ export default function SignInPage() {
           className="flex flex-col gap-3"
           action={async (formData: FormData) => {
             "use server";
-            await signIn("credentials", formData, { redirectTo: "/" });
+            const email = formData.get("email");
+            const password = formData.get("password");
+            await signIn("credentials", {
+              email: String(email),
+              password: String(password),
+              redirectTo: "/",
+            });
           }}
         >
           <label className="flex flex-col gap-1">
