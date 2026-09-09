@@ -1,18 +1,19 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { eq, inArray } from "drizzle-orm";
 import { getDb } from "@/lib/db";
-import { notes } from "@/lib/db/schema";
+import { notes, workspaces } from "@/lib/db/schema";
 import {
   createNote,
   getEditableNote,
   getNote,
   getOrCreateDefaultWorkspace,
   listNotes,
+  provisionWorkspace,
   restoreNote,
   softDeleteNote,
   updateNote,
   NotesError,
 } from "@/lib/pkm/notes";
-import { inArray } from "drizzle-orm";
 
 // Integration tests run against the live development Neon branch and WRITE
 // rows. Each marker is unique per run and cleaned up in afterAll, so the
@@ -22,14 +23,16 @@ const marker = `itest-${Date.now()}`;
 const db = getDb();
 let workspaceId: string;
 const createdIds: string[] = [];
+const raceSlug = `itest-race-${Date.now()}`;
 
 beforeAll(async () => {
   workspaceId = await getOrCreateDefaultWorkspace();
 });
 
 afterAll(async () => {
-  if (createdIds.length === 0) return;
-  await db.delete(notes).where(inArray(notes.id, createdIds));
+  if (createdIds.length > 0) {
+    await db.delete(notes).where(inArray(notes.id, createdIds));
+  }
 });
 
 describe("notes service", () => {
@@ -38,6 +41,27 @@ describe("notes service", () => {
     // idempotent — calling again returns the same workspace
     const again = await getOrCreateDefaultWorkspace();
     expect(again).toBe(workspaceId);
+  });
+
+  test("concurrent first-use provisioning collapses to one row", async () => {
+    const [a, b, c, d] = await Promise.all([
+      provisionWorkspace(raceSlug, "race"),
+      provisionWorkspace(raceSlug, "race"),
+      provisionWorkspace(raceSlug, "race"),
+      provisionWorkspace(raceSlug, "race"),
+    ]);
+    expect(new Set([a, b, c, d]).size).toBe(1);
+
+    const rows = await db
+      .select({ id: workspaces.id })
+      .from(workspaces)
+      .where(eq(workspaces.slug, raceSlug));
+    expect(rows).toHaveLength(1);
+    expect(rows[0].id).toBe(a);
+
+    // clean up here, not in afterAll: db.test.ts asserts the workspace table
+    // holds only "default" and runs in parallel with this file.
+    await db.delete(workspaces).where(eq(workspaces.id, a));
   });
 
   test("create then get a note", async () => {

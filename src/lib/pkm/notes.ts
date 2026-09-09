@@ -25,20 +25,41 @@ export class NotesError extends Error {
 // ponytail: get-or-create by constant slug; per-user workspaces if the
 // account model ever grows.
 export async function getOrCreateDefaultWorkspace(): Promise<string> {
+  return provisionWorkspace(DEFAULT_WORKSPACE_SLUG, "Default");
+}
+
+// First-use provisioning must survive concurrent callers (layout + page
+// render the same view): SELECT first, INSERT only when missing, and re-read
+// the winner if a concurrent caller won the insert race.
+export async function provisionWorkspace(
+  slug: string,
+  name: string,
+): Promise<string> {
   const db = getDb();
   const existing = await db
-    .select()
+    .select({ id: workspaces.id })
     .from(workspaces)
-    .where(eq(workspaces.slug, DEFAULT_WORKSPACE_SLUG))
+    .where(eq(workspaces.slug, slug))
     .limit(1);
 
   if (existing.length > 0) return existing[0].id;
 
-  const inserted = await db
-    .insert(workspaces)
-    .values({ name: "Default", slug: DEFAULT_WORKSPACE_SLUG })
-    .returning({ id: workspaces.id });
-  return inserted[0].id;
+  try {
+    const inserted = await db
+      .insert(workspaces)
+      .values({ name, slug })
+      .returning({ id: workspaces.id });
+    return inserted[0].id;
+  } catch (err) {
+    // Concurrent provisioning: another caller inserted the row first.
+    const winner = await db
+      .select({ id: workspaces.id })
+      .from(workspaces)
+      .where(eq(workspaces.slug, slug))
+      .limit(1);
+    if (winner.length > 0) return winner[0].id;
+    throw err;
+  }
 }
 
 export interface NoteStats {
