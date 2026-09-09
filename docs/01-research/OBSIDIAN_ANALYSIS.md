@@ -1,44 +1,40 @@
-# Obsidian Analysis
+# Obsidian 1:1 Analysis
 
-## What Obsidian does well
+## Standing decision
 
-- Markdown as file format (local-first, portable)
-- Bidirectional linking with [[]] syntax
-- Backlinks panel and graph view
-- Plugin ecosystem (community and official)
-- Local files, no vendor lock-in
-- Fast search across vault
-- Templates and daily notes
+The vault UI is an **Obsidian 1:1: design no difference**. Same frame, same
+interaction model, same writing experience. This supersedes the original
+2026 note below where the two conflict.
 
-## What we learn from Obsidian
+## What 1:1 means here
 
-- **Markdown as canonical format** — we follow this exactly
-- **Wikilink syntax** — [[Note]] and [[Note|Display text]]
-- **Backlinks as a core feature** — not optional, not an afterthought
-- **Fast search** — PostgreSQL FTS replaces file-based search
-- **Link graph** — recursive CTE on note_links table
+- Frame: ribbon (icon strip) | file explorer | open-file tabs | editor pane |
+  outline/backlinks sidebar | status bar
+- Writing experience: CodeMirror 6 source mode + live preview + reading view
+  (ADR-013 supersedes the earlier Tiptap WYSIWYG choice)
+- File/folder interface: collapsible ltree tree, create/rename/move/delete
+- Properties: Obsidian-style panel, added via "+ new metadata"; stored in
+  `note_properties` (ADR-014), YAML serialized only at import/export
+- Graph view: a plugin, not core (ADR-015) — ships as the first plugin
+- Plugins: community-plugin-style extension surface, curated bundles first
+- PARA is NOT part of the vault. No PARA navigation, no PARA concepts in the
+  UI. The columns/API survive for the separate PARA dashboard project, which
+  consumes this project's API.
+- The dashboard is a different project. This project is vault + API.
 
-## What we do differently
+## What Obsidian does well (kept)
 
-- **Server-first, not local-first** — Obsidian is a local app with sync.
-  We're a web app with a database. This enables API access, mobile clients,
-  and external integrations.
-- **Structured database, not flat files** — Properties, tags, and PARA
-  are database columns with indexes, not file metadata.
-- **No plugin system (yet)** — Build core features well before extensibility.
-- **Single user, not collaborative** — No CRDT, no real-time collab.
-- **API-first** — The PKM is a platform, not just a desktop app.
+- Markdown as canonical format (ADR-006)
+- `[[Note]]` / `[[Note|Display text]]` / `[[Note#Heading]]` wikilinks
+- Backlinks as a core pane, not an afterthought
+- Fast search across the vault — PostgreSQL FTS + pg_trgm (ADR-005)
+- Link graph on `note_links` adjacency list, recursive CTE (ADR-011)
 
-## Link syntax reference
+## What we do differently (server-first)
 
-```
-[[Note Title]]
-[[Note Title|Display text]]
-[[Note Title#Heading]]
-```
-
-## Backlink resolution
-
-When note A links to note B, note B's backlinks include note A.
-This is maintained in the `note_links` table, not parsed at read time.
-Renaming note B updates all `note_links` rows referencing it.
+- Server + Postgres, not local files; API-first so the dashboard project and
+  mobile clients consume the same data
+- Properties are structured rows (`note_properties`), not file metadata,
+  with a runtime YAML-free read path (perf budget: <500 ms p95 at 10k notes)
+- Single user; no CRDT/real-time collab
+- Plugins are curated bundles now; sandboxed third-party loading later

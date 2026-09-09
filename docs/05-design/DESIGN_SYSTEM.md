@@ -54,25 +54,28 @@ Thin, subtle. 1px solid `border`. No shadows. No glassmorphism.
 
 Minimal. 2px-4px max. Never decorative rounding.
 
-## Layout
+## Layout — Obsidian vault frame
+
+The vault UI is an Obsidian 1:1 frame (see OBSIDIAN_ANALYSIS.md). The
+dashboard layout below it is retired.
 
 ```
-┌──────────────────────────────────────────────────────┐
-│ Top bar (48px) — search, command, user               │
-├──────────┬───────────────────────────────────────────┤
-│ Sidebar  │ Main content                              │
-│ (240px)  │ (fluid)                                   │
-│          │                                           │
-│ Inbox    │ Note editor / reader / dashboard           │
-│ Notes    │                                           │
-│ Folders  │                                           │
-│ Tags     │                                           │
-│ Projects │                                           │
-│          │                                           │
-├──────────┴───────────────────────────────────────────┤
-│ Status bar (24px) — optional, contextual info        │
-└──────────────────────────────────────────────────────┘
+┌────────┬──────────┬────────────────────────────────┬──────────────┐
+│ Ribbon │ Explorer │ Tab strip                      │ Outline /    │
+│ (40px) │ (240px)  │                                │ Backlinks    │
+│        │  Vault   ├────────────────────────────────┤ (Stage 4)    │
+│ icon   │  tree    │ Editor pane                    │              │
+│ strip  │  (empty  │ (source / live preview /       │              │
+│        │   now)   │  reading — Stage 2-4)          │              │
+├────────┴──────────┴────────────────────────────────┴──────────────┤
+│ Status bar (24px) — context, sync state                            │
+└───────────────────────────────────────────────────────────────────┘
 ```
+
+- Ribbon: 40px icon strip, core actions top, settings/account bottom
+- Explorer: 240px file tree; header holds the new-note/new-folder actions
+- Tab strip: open files; dirty state marked; tabs land with the editor
+- Panes separated by 1px `border`, no shadows, no glassmorphism
 
 ## Component patterns
 

@@ -13,7 +13,8 @@ async function signIn(page: Page) {
   await page.getByLabel("email").fill(EMAIL);
   await page.getByLabel("password").fill(PASSWORD);
   await page.getByRole("button", { name: /sign in/i }).click();
-  await expect(page).toHaveURL(/\/notes$/);
+  await expect(page).toHaveURL(/\/$/);
+  await page.goto("/notes");
 }
 
 test("create a note, edit it, and delete it", async ({ page }) => {
@@ -22,7 +23,7 @@ test("create a note, edit it, and delete it", async ({ page }) => {
   const title = `e2e-${TAG}-alpha`;
 
   // create
-  await page.getByRole("link", { name: /new note/i }).click();
+  await page.getByRole("main").getByRole("link", { name: /new note/i }).click();
   await expect(page).toHaveURL(/\/notes\/new/);
   await page.getByLabel("title").fill(title);
   await page.getByLabel("content").fill("hello from playwright");
