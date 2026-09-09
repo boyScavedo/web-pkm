@@ -65,13 +65,16 @@ describe("database schema", () => {
     expect(rows.rows).toHaveLength(1);
   });
 
-  test("no stale users; workspaces contains only the default workspace", async () => {
+  test("no stale users; workspaces contain default plus transient itest markers", async () => {
     const [u, w] = await Promise.all([
       db.select().from(users),
       db.select().from(workspaces),
     ]);
     expect(u).toHaveLength(0);
-    // Phase 02 lazily provisions one default workspace on first use; nothing else
-    expect(w.map((row) => row.slug)).toEqual(["default"]);
+    // Phase 02 lazily provisions one default workspace on first use. Other
+    // test files may hold a throwaway `itest-race-*` workspace mid-flight
+    // (parallel files), so tolerate `itest-` markers; anything else is stale.
+    const slugs = w.map((row) => row.slug).filter((s) => !s.startsWith("itest-"));
+    expect(slugs).toEqual(["default"]);
   });
 });
