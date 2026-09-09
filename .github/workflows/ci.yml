@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      PKM_EMAIL: pkm@local
+      PKM_PASSWORD: changeme
+      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+      DEV_DATABASE_URL: ${{ secrets.DEV_DATABASE_URL }}
+      DEV_DATABASE_URL_UNPOOLED: ${{ secrets.DEV_DATABASE_URL_UNPOOLED }}
+      DATABASE_URL: ${{ secrets.DEV_DATABASE_URL }}
+      DATABASE_URL_UNPOOLED: ${{ secrets.DEV_DATABASE_URL_UNPOOLED }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit + integration tests (dev DB)
+        run: npm run test:unit && npm run test:integration
+        env:
+          # Integration tests run against the shared development branch.
+          # Neon scale-to-zero adds cold-start latency; allow retries.
+          CI: "true"
+
+      - name: E2E (Playwright)
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-results
+          path: test-results/
+          retention-days: 7
