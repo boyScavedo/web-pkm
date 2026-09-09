@@ -21,14 +21,14 @@ These rules are binding for every contribution, human or agent.
 
 ## Databases (Neon)
 
-Actual topology (verified 2026-09-09): PRD and DEV are TWO separate Neon
-projects; `preview` is a branch inside the PRD project. NOT one project with
-mirroring branches.
+ONE Neon project, branches mirror git (verified 2026-09-09):
+project `web_pkm_db` (`orange-frog-96906790`), org
+`org-falling-dust-51173652`. No pooling (direct endpoints only).
 
-- `production` (PRD project, git `main`): `PROD_DATABASE_URL` / `PROD_DATABASE_URL_UNPOOLED`.
+- `main` branch → `PROD_DATABASE_URL` / `PROD_DATABASE_URL_UNPOOLED` (git `main`).
   Migrated ONLY inside the dev→main runbook after preview verifies the schema.
-- `development` (DEV project, git `dev` + all feature/* work): `DEV_DATABASE_URL` / `DEV_DATABASE_URL_UNPOOLED`.
-- `preview` (branch in PRD project, Vercel previews): `PREVIEW_DATABASE_URL` / `PREVIEW_DATABASE_URL_UNPOOLED`.
+- `development` branch → `DEV_DATABASE_URL` / `DEV_DATABASE_URL_UNPOOLED` (git `dev` + all feature/* work).
+- `preview` branch → `PREVIEW_DATABASE_URL` / `PREVIEW_DATABASE_URL_UNPOOLED` (Vercel previews).
 
 The active database is `DATABASE_URL` / `DATABASE_URL_UNPOOLED`. Local dev and
 integration tests point it at `development`; Vercel preview scope points it at

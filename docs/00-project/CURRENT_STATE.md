@@ -17,9 +17,10 @@ Last updated: 2026-09-09
   note_tags, note_links, note_properties, note_revisions, assets,
   note_assets, projects, project_notes) + PARA/status enums, ltree folder
   paths, generated tsvector search column, GIN trigram indexes
-- Migrations applied to the DEV Neon project; PRD project was EMPTY (no
+- Migrations applied to the `development` branch; `main` branch was EMPTY (no
   tables) as of 2026-09-09. Production is structured at promotion time via the
   preview-branch staging runbook (#6) — see WORKFLOW.md "DB staging runbook".
+  `preview` branch created + migrated 2026-09-09.
 - Auth: NextAuth v5, JWT strategy, Credentials provider (env-based
   single user, sha256 + timingSafeEqual), Drizzle adapter attached
   (DATABASE_URL present). Sign-in page, session guard, sign-out.
@@ -39,9 +40,9 @@ Last updated: 2026-09-09
   push to dev.
 - **Workflow contract** in `docs/00-project/WORKFLOW.md` + AGENTS.md: branch
   model (feature/*→dev→main), squash feature→dev, merge-commit dev→main,
-  PR-as-debug-record, preview-branch DB staging (PRD project + DEV project +
-  preview branch), phase order, test gate, repo settings + branch protection
-  enforced.
+  PR-as-debug-record, preview-branch DB staging (one Neon project, branches
+  main/development/preview), phase order, test gate, repo settings + branch
+  protection enforced.
 - `.env.local` (chmod 600): AUTH_SECRET + PKM_EMAIL/PKM_PASSWORD;
   `.env` holds PROD_*/DEV_* DB URLs + active DATABASE_URL pair
 
