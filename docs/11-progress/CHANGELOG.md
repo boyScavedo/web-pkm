@@ -4,6 +4,13 @@ All notable changes to the web-pkm project.
 
 Format: YYYY-MM-DD — description.
 
+## 2026-09-09 — Workspace provisioning race fix
+
+- `getOrCreateDefaultWorkspace` extracted to conflict-safe
+  `provisionWorkspace(slug, name)`: on first use, concurrent callers
+  (layout + page) no longer duel on `workspaces_slug_unique`
+  (surfaced by preview-branch staging, issue #8)
+
 ## 2026-09-09 — Phase 02: Notes CRUD
 
 - Service layer `src/lib/pkm/notes.ts`: createNote, getNote,
