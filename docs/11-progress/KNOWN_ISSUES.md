@@ -2,12 +2,12 @@
 
 ## Current
 
-- No `DATABASE_URL`/`DATABASE_URL_UNPOOLED` in `.env.local` — auth (JWT) and
-  build run without them; any DB query will throw until added. After adding:
-  `npm run db:migrate` then apply `src/lib/db/triggers.sql`.
 - Self-FK on `folders.parent_id` intentionally absent (Drizzle circular type
   inference); service layer must validate parent references.
-- Revision triggers are hand-applied SQL, not in Drizzle migrations.
+- Revision triggers are hand-applied SQL, not in Drizzle migrations
+  (`psql db -f src/lib/db/triggers.sql` after `db:migrate`).
+- Neon project has no `preview` branch — `development` doubles as preview
+  (Vercel previews and local work all use DEV_*).
 
 ## Risks
 

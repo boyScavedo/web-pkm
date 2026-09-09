@@ -4,7 +4,8 @@ Last updated: 2026-09-09
 
 ## Phase
 
-**Phase 01 — Foundation** — COMPLETE (pending DB credentials)
+**Phase 01 — Foundation** — COMPLETE
+**Phase 02 — Notes CRUD** — IN PROGRESS
 
 ## What exists
 
@@ -15,28 +16,29 @@ Last updated: 2026-09-09
   note_tags, note_links, note_properties, note_revisions, assets,
   note_assets, projects, project_notes) + PARA/status enums, ltree folder
   paths, generated tsvector search column, GIN trigram indexes
-- Migration `drizzle/0000_ambiguous_mister_fear.sql` (extension setup,
-  17 tables, stand-alone indexes; drops verified against fresh schema)
-- `src/lib/db/triggers.sql` — revision snapshot trigger + prune (20/note);
-  must be applied after migration (not in Drizzle migrations yet)
+- Migrations applied to BOTH Neon branches (main + development); revision
+  trigger, ltree, pg_trgm live on both
 - Auth: NextAuth v5, JWT strategy, Credentials provider (env-based
-  single user, sha256 + timingSafeEqual), adapter auto-attaches once
-  DATABASE_URL exists. Sign-in page, session guard, sign-out.
+  single user, sha256 + timingSafeEqual), Drizzle adapter attached
+  (DATABASE_URL present). Sign-in page, session guard, sign-out.
 - Shell: AMOLED dark theme (black bg, cyan accent, monospace), Sidebar
   (PARA + system nav), Topbar, empty-state notes list, placeholder pages
   (notes/new, notes/[id], tags, folders, projects)
 - UI primitives: Button, Input, Badge, Card; `cn()` helper
+- **Testing**: Vitest (unit + integration) + Playwright E2E; `npm run test`
+  chains all three. GitHub Actions CI runs lint/typecheck/unit/integration/e2e
+  on every PR to dev/main and push to dev.
+- **Workflow contract** in `docs/00-project/WORKFLOW.md` + AGENTS.md: branch
+  model (feature/*→dev→main), Neon mirror, phase order, test gate.
 - `.env.local` (chmod 600): AUTH_SECRET + PKM_EMAIL/PKM_PASSWORD;
-  `.env.example` documents all vars incl. R2 placeholders
+  `.env` holds PROD_*/DEV_* DB URLs + active DATABASE_URL pair
 
 ## What's next
 
-Phase 02: Notes CRUD service layer + API (`src/lib/pkm/`), notes list,
-create/edit pages, markdown editor integration.
+Phase 02: Notes CRUD service layer (`src/lib/pkm/notes.ts`) + API routes +
+notes list/create/edit pages + tests for each.
 
-**Blocker**: Neon `DATABASE_URL` + `DATABASE_URL_UNPOOLED` not added yet.
-Auth works without them (JWT), so no code changes required when they land —
-just `npm run db:migrate` + `psql db -f triggers`.
+**Blocker**: none. Both Neon branches are migrated and CI is wired.
 
 ## Key decisions made
 

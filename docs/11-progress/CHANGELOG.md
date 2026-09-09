@@ -4,6 +4,20 @@ All notable changes to the web-pkm project.
 
 Format: YYYY-MM-DD — description.
 
+## 2026-09-09 — Foundation upgrade: DB live, tests, CI, workflow
+
+- Created Neon `development` branch (git `dev` + all feature work mirrors it);
+  migrated schema + triggers on both `main` and `development` branches
+- Restructured `.env`: PROD_*/DEV_* DB URL pairs + active DATABASE_URL
+- Fixed sign-in redirect bug: `redirectTo` was passed as an authorizationParam
+  so login never left /sign-in (found via first real E2E test)
+- Test harness: Vitest (unit + integration against real dev DB) + Playwright
+  E2E (auth flows). `npm run test` = unit + integration + E2E serially
+- GitHub Actions CI: lint, typecheck, unit, integration, E2E on PRs to
+  dev/main and pushes to dev
+- `docs/00-project/WORKFLOW.md` + AGENTS.md: binding workflow contract
+  (branch model, Neon mirror, phase order, test gate, commit/agent rules)
+
 ## 2026-09-09 — Phase 01 complete (pending DB credentials)
 
 - Installed: drizzle-orm, drizzle-kit, @neondatabase/serverless, next-auth,
