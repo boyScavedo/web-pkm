@@ -16,16 +16,26 @@ These rules are binding for every contribution, human or agent.
 
 - `main` — production. Only reached via `dev` after a full green regression. Nobody commits to `main` directly.
 - `dev` — integration trunk. All `feature/*`, `issue/*`, `fix/*` branches merge here. This is where integration happens; also the Vercel preview deployment.
-- `feature/*` — phase work. Each feature gets its own branch with its own unit + E2E tests.
-- `issue/*` or `fix/*` — bug fixes. Created from a GitHub issue.
+- `feature/*` — phase work. Each feature gets its own branch with its own unit + E2E tests. Merges to `dev` via squash PR; branch deleted.
+- `issue/*` or `fix/*` — bug fixes. Created from a GitHub issue. Merges to `dev` via squash PR.
 
 ## Databases (Neon)
 
-Two Neon branches, mirroring git:
-- `main` branch → `PROD_DATABASE_URL` / `PROD_DATABASE_URL_UNPOOLED`
-- `development` branch → `DEV_DATABASE_URL` / `DEV_DATABASE_URL_UNPOOLED` (git `dev` + all feature/* work)
+ONE Neon project, branches mirror git (verified 2026-09-09):
+project `web_pkm_db` (`orange-frog-96906790`), org
+`org-falling-dust-51173652`. No pooling (direct endpoints only).
 
-The active database is `DATABASE_URL` / `DATABASE_URL_UNPOOLED`. Local development and Vercel previews point it at the `development` branch; production deploy points it at the `main` branch. Migrations run against `*_UNPOOLED` (direct connection; pooled rejects DDL).
+- `main` branch → `PROD_DATABASE_URL` / `PROD_DATABASE_URL_UNPOOLED` (git `main`).
+  Migrated ONLY inside the dev→main runbook after preview verifies the schema.
+- `development` branch → `DEV_DATABASE_URL` / `DEV_DATABASE_URL_UNPOOLED` (git `dev` + all feature/* work).
+- `preview` branch → `PREVIEW_DATABASE_URL` / `PREVIEW_DATABASE_URL_UNPOOLED` (Vercel previews).
+
+The active database is `DATABASE_URL` / `DATABASE_URL_UNPOOLED`. Local dev and
+integration tests point it at `development`; Vercel preview scope points it at
+`preview`; production deploy points it at `production`. Migrations run against
+`*_UNPOOLED` (direct connection; pooled rejects DDL). See WORKFLOW.md "DB
+staging runbook" for the dev→main structure gate: one strict order — extensions
+(`ltree`, `pg_trgm`) → `db:migrate` → `triggers.sql`.
 
 ## Phase workflow (in order)
 
@@ -33,7 +43,7 @@ The active database is `DATABASE_URL` / `DATABASE_URL_UNPOOLED`. Local developme
 2. **New-issue scan (optional chore).** Scan only the last few commits, not the whole codebase. If issues found → report only, do not fix.
 3. **Write the phase.** Analyze phase docs. Up to 3 subagents, each on its own `feature/*` branch, each with unit + E2E tests.
 4. **Merge features to `dev`.** Rerun all unit tests. If failures → fix issues → re-merge to `dev` → rerun until green.
-5. **Full regression** on `dev`: all unit tests + all E2E tests. Only when this passes, merge `dev` → `main`.
+5. **Full regression** on `dev`: all unit tests + all E2E tests. Only when this passes, open the `dev` → `main` PR and ask the human to review. **Always open that PR as soon as `dev` is green** — even if the human says they will review the dev preview first. It is never auto-merged and the commit never stalls.
 
 ## Test gate (mandatory before every commit and merge)
 
@@ -44,8 +54,13 @@ The active database is `DATABASE_URL` / `DATABASE_URL_UNPOOLED`. Local developme
 ## Commits
 
 - Conventional commits. One logical change per commit.
-- Chronological history on `dev`. Feature/issue merges to `dev` may be auto-merged (squash) preserving order.
-- `dev` → `main` merge is always reviewed by the human — never auto-merged.
+- Chronological history on `dev`. `feature/*` and `issue/*` merge to `dev` via
+  **squash** PR (one commit per logical change, branch auto-deleted). The PR
+  stays open forever as the canonical debug record — never make changes that
+  bypass a PR on `dev`.
+- `dev` → `main` merge is a **merge commit**, always reviewed by the human — never auto-merged.
+- Branch protection (enforced in GitHub): `dev` and `main` require a PR and the
+  `test` CI check; `main` enforces on admins too.
 - If a committed change is later found buggy: open a GitHub issue (`gh issue create`), then fix via an `issue/*`/`fix/*` branch → PR → merge to `dev`.
 
 ## Agent rules

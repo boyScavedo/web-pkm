@@ -4,6 +4,44 @@ All notable changes to the web-pkm project.
 
 Format: YYYY-MM-DD — description.
 
+## 2026-09-09 — Workspace provisioning race fix
+
+- `getOrCreateDefaultWorkspace` extracted to conflict-safe
+  `provisionWorkspace(slug, name)`: on first use, concurrent callers
+  (layout + page) no longer duel on `workspaces_slug_unique`
+  (surfaced by preview-branch staging, issue #8)
+
+## 2026-09-09 — Phase 02: Notes CRUD
+
+- Service layer `src/lib/pkm/notes.ts`: createNote, getNote,
+  getEditableNote, listNotes (limit/offset, para/status/favorite filters,
+  sort/order), updateNote, softDeleteNote, restoreNote, lazy
+  getOrCreateDefaultWorkspace
+- API: `GET/POST /api/notes`, `GET/PATCH/DELETE /api/notes/[id]`,
+  `POST /api/notes/[id]/restore` — `{data,error}` envelope, session guard,
+  explicit validation, explicit wire shapes (no computed-column leaks)
+- UI: live notes list at `/notes` with PARA filter, create form at
+  `/notes/new`, view/edit form at `/notes/[id]`; shared `NoteEditor`
+  client component; soft-delete + restore endpoints
+- Tests: unit (limit/offset helpers), integration (real dev Neon,
+  self-cleaning markers), E2E (create → edit → para filter → delete)
+- `db.test.ts` pristine-workspace assertion replaced (app now provisions
+  one `default` workspace); stale empty-vault E2E assertion replaced
+- MASTER_PLAN renumbered (old "PKM Database" phase was absorbed into 01;
+  02 = Notes CRUD; Tiptap editor → 03)
+- Full gate green: typecheck, lint, 15 unit + 16 integration + 4 E2E, build
+
+## 2026-09-09 — Workflow enforced: squash feature→dev, merge-commit dev→main
+
+- Repo settings: merge commits + squash allowed (no rebase), branch
+  auto-delete on merge, auto-merge disabled
+- Branch protection (classic): dev requires PR + `test` check
+  (enforce_admins off); main requires PR + `test` check (blocks admins too)
+- Merge strategy researched (GitHub/GitLab docs) and user-confirmed:
+  feature/issue→dev = squash; dev→main = merge commit, human-reviewed
+- WORKFLOW.md + AGENTS.md updated to codify the enforced strategy
+- PR #2: `fix/workflow-merge-strategy` → dev
+
 ## 2026-09-09 — Foundation upgrade: DB live, tests, CI, workflow
 
 - Created Neon `development` branch (git `dev` + all feature work mirrors it);

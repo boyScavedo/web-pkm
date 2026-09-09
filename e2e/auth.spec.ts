@@ -18,11 +18,11 @@ test("sign in with credentials redirects to /notes", async ({ page }) => {
   await expect(page).toHaveURL(/\/notes$/);
 });
 
-test("notes empty state renders after sign-in", async ({ page }) => {
+test("notes page renders after sign-in", async ({ page }) => {
   await page.goto("/sign-in");
   await page.getByLabel("email").fill(EMAIL);
   await page.getByLabel("password").fill(PASSWORD);
   await page.getByRole("button", { name: /sign in/i }).click();
   await expect(page).toHaveURL(/\/notes$/);
-  await expect(page.getByText(/no notes|empty/i).first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: /notes/i })).toBeVisible();
 });
