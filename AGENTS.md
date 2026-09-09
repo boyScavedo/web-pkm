@@ -16,8 +16,8 @@ These rules are binding for every contribution, human or agent.
 
 - `main` — production. Only reached via `dev` after a full green regression. Nobody commits to `main` directly.
 - `dev` — integration trunk. All `feature/*`, `issue/*`, `fix/*` branches merge here. This is where integration happens; also the Vercel preview deployment.
-- `feature/*` — phase work. Each feature gets its own branch with its own unit + E2E tests.
-- `issue/*` or `fix/*` — bug fixes. Created from a GitHub issue.
+- `feature/*` — phase work. Each feature gets its own branch with its own unit + E2E tests. Merges to `dev` via squash PR; branch deleted.
+- `issue/*` or `fix/*` — bug fixes. Created from a GitHub issue. Merges to `dev` via squash PR.
 
 ## Databases (Neon)
 
@@ -44,8 +44,13 @@ The active database is `DATABASE_URL` / `DATABASE_URL_UNPOOLED`. Local developme
 ## Commits
 
 - Conventional commits. One logical change per commit.
-- Chronological history on `dev`. Feature/issue merges to `dev` may be auto-merged (squash) preserving order.
-- `dev` → `main` merge is always reviewed by the human — never auto-merged.
+- Chronological history on `dev`. `feature/*` and `issue/*` merge to `dev` via
+  **squash** PR (one commit per logical change, branch auto-deleted). The PR
+  stays open forever as the canonical debug record — never make changes that
+  bypass a PR on `dev`.
+- `dev` → `main` merge is a **merge commit**, always reviewed by the human — never auto-merged.
+- Branch protection (enforced in GitHub): `dev` and `main` require a PR and the
+  `test` CI check; `main` enforces on admins too.
 - If a committed change is later found buggy: open a GitHub issue (`gh issue create`), then fix via an `issue/*`/`fix/*` branch → PR → merge to `dev`.
 
 ## Agent rules
