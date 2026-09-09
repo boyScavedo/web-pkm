@@ -79,6 +79,10 @@ npm run lint
     (squash commit links to `refs/pull/N/merge`), so per-commit WIP detail and
     review discussion remain the canonical debug record.
   - `dev` → `main`: **merge commit**, human-reviewed, never auto-merged.
+    The `dev` → `main` PR is **always opened as soon as `dev` is green** —
+    even when the human plans to smoke-test the dev/preview deployment first.
+    The PR documents the promotion so the commit never stalls; the human
+    merges it when they are ready.
 - Branch protection: `dev` and `main` require a PR, require the `test` CI check,
   and block direct pushes. `main` also enforces on admins.
 - If a merged change is later found buggy: `gh issue create` → `fix/*` branch →

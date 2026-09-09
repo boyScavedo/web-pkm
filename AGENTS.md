@@ -33,7 +33,7 @@ The active database is `DATABASE_URL` / `DATABASE_URL_UNPOOLED`. Local developme
 2. **New-issue scan (optional chore).** Scan only the last few commits, not the whole codebase. If issues found → report only, do not fix.
 3. **Write the phase.** Analyze phase docs. Up to 3 subagents, each on its own `feature/*` branch, each with unit + E2E tests.
 4. **Merge features to `dev`.** Rerun all unit tests. If failures → fix issues → re-merge to `dev` → rerun until green.
-5. **Full regression** on `dev`: all unit tests + all E2E tests. Only when this passes, merge `dev` → `main`.
+5. **Full regression** on `dev`: all unit tests + all E2E tests. Only when this passes, open the `dev` → `main` PR and ask the human to review. **Always open that PR as soon as `dev` is green** — even if the human says they will review the dev preview first. It is never auto-merged and the commit never stalls.
 
 ## Test gate (mandatory before every commit and merge)
 

@@ -120,3 +120,51 @@ Minimal. 2px-4px max. Never decorative rounding.
 - **Active/Selected**: `bg-active` + `accent` accent
 - **Disabled**: `fg-dim` text, no interaction
 - **Loading**: subtle pulse animation on skeleton elements
+
+## Iconography
+
+- **No emoji and no decorative Unicode glyphs in the UI.** `📄`, `⊡`, `▣`,
+  `▢`, `◇`, `▧`, `☆`, `★` in the first shell were placeholders and read as
+  AI-generated; they are banned. (See KNOWN_ISSUES.)
+- All icons come from **one coherent stroke-based SVG set**, consistent:
+  - 24px grid, 1.5px–2px stroke
+  - round line caps and joins
+  - monochrome: `fg` / `fg-muted` at rest, `accent` for the active state
+  - single-purpose geometric shapes (no detail that disappears at 16px)
+- Anchor the set to one real icon grammar (e.g. Feather/Lucide: minimal,
+  geometric, one metaphor per glyph). Dictionary of used glyphs is documented
+  in this file so the set never drifts.
+
+## AI-assisted art direction (prompt discipline)
+
+Rule for the whole team, human or agent, when generating any visual or icon
+with AI: **if a prompt could describe 10 000 images, the output will look
+like 10 000 images mashed together — that is the "AI look".** A good prompt
+describes ~10.
+
+Before generating, write a brief that passes all of:
+
+1. **Specifics, not adjectives.** "Clean and modern" is a refusal. Name exact
+   values: hex palette, stroke width, corner radius, grid position, size.
+2. **Style anchor + one anti-reference.** Cite one real reference (icon set,
+   designer, tool, film) whose grammar the output should follow, and one
+   style explicitly forbidden.
+3. **Constraints.** Platform, format, size/grid, WCAG contrast (≥ 4.5:1),
+   dark-mode behavior (AMOLED black tokens here).
+4. **Consistency is procedural.** Generate every member of a set from ONE
+   shared template: fixed stroke, palette, padding, perspective, shadow
+   direction. Never free-form each icon.
+5. **Negative-prompt the slop checklist**: purple/indigo gradients, gloss,
+   bevel/3D ("cinematic lighting", "hyper detailed", "8K" in a flat brief),
+   drop shadows at 0.1 opacity, centered hero, a row of three icon cards,
+   rainbow palettes, emoji.
+6. **Iterate in recorded steps**, keeping the winning template back in this
+   doc so the next generation starts from the last lesson.
+
+Template for a single icon:
+
+    One <subject>, <icon-set grammar> line icon, 24x24 grid, <stroke>px
+    stroke, round caps and joins, flat 2D vector. Exactly <1-2 colors>
+    from the web-pkm palette (#e5e5e5 rest / #00d4ff active). Centered,
+    occupying ~70% of the canvas. No gradients, no shading, no shadows,
+    no background, no text. Anti-reference: <forbidden style>.
