@@ -4,6 +4,29 @@ All notable changes to the web-pkm project.
 
 Format: YYYY-MM-DD — description.
 
+## 2026-09-09 — Phase 03 Stage 1: file explorer + folders API
+
+- Folder service `src/lib/pkm/folders.ts`: ltree path math
+  (`folderLabel`, `freeFolderPath` with conflict suffixes), list→tree,
+  create, rename/move with subtree re-path, cycle guard on move, delete
+  (subtree + soft-deletes contained notes). Folders errors carry
+  `NOT_FOUND`/`VALIDATION` codes (ADR-008 envelope).
+- REST API `/api/folders` (GET tree, POST create) and `/api/folders/[id]`
+  (PATCH rename, POST move, DELETE). Notes list + `/api/notes` gained a
+  `folderId`/`?folder=` filter; create accepts `folderId: null` (root).
+- FileExplorer becomes a live client tree: folders + most-recent 100 notes,
+  collapse, context menu (new note/folder, rename, move, delete), inline
+  new-folder/rename inputs, move-to dialog. Explorer "New note" POSTs the
+  note and routes to its editor.
+- New vault icons: Folder, FolderPlus, Pencil, Trash, Move.
+- Tests: `tests/unit/folders.test.ts` (4) + `tests/integration/folders.test.ts`
+  (7, self-cleaning `itest-folder-*` workspace). E2E: vault folder
+  create/rename/delete scenario; notes.spec + auth.spec de-aliased against
+  the now-always-present explorer (main scoping, dropped empty-state assert).
+- Fixed along the way: ltree `subpath` boundary (leaf re-path), `any(())`
+  array binding in delete, `folderId: null` 400 in POST /api/notes,
+  `setPending` type/kind mismatch, generic-parse bug in the pending state.
+
 ## 2026-09-09 — Phase 03 Stage 0: Obsidian 1:1 frame + foundations
 
 - Product redirect: the vault is now an Obsidian 1:1 (design no difference).

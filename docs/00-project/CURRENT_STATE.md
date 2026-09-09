@@ -6,7 +6,7 @@ Last updated: 2026-09-09
 
 **Phase 01 — Foundation** — COMPLETE
 **Phase 02 — Notes CRUD** — COMPLETE
-**Phase 03 — Obsidian 1:1 Vault Base** — IN PROGRESS (Stage 0 done, stages 03.2-03.8 ahead; see PHASE-03.md)
+**Phase 03 — Obsidian 1:1 Vault Base** — IN PROGRESS (Stages 0-1 done, stages 03.3-03.8 ahead; see PHASE-03.md)
 
 ## What exists
 
@@ -29,16 +29,25 @@ Last updated: 2026-09-09
   home at `/`. Sidebar/Topbar dashboard retired; PARA removed from vault UI
   (columns/API remain for the separate dashboard project). Dark AMOLED +
   monospace retained. Vault icon set: hand-rolled Lucide-grammar SVGs.
+- **File explorer + folders API (Phase 03 stage 1)**: folder service in
+  `src/lib/pkm/folders.ts` (ltree path math, conflict-suffixed names,
+  subtree re-path on rename/move, cycle guard, delete soft-deletes contained
+  notes), REST API under `/api/folders` (GET tree, POST create, PATCH rename,
+  POST move, DELETE subtree). Notes list/API gained a `folderId`/`?folder=`
+  filter. Explorer is now a live client tree: collapse, context menu
+  (new note/folder, rename, move, delete), inline inputs, move-to dialog;
+  explorer "New note" creates via API and opens the editor.
 - UI primitives: Button, Input, Badge, Card; `cn()` helper
 - **Notes CRUD** (Phase 02): service layer `src/lib/pkm/notes.ts`
   (create/get/list-with-filters/update/soft-delete/restore), REST API under
   `/api/notes` (list+create, get/patch/delete by id, restore) with
   `{data,error}` envelope + session guard. Legacy `/notes` list + create/edit
   form pages still reachable by URL during the vault transition.
-- **Testing**: Vitest (15 unit + 17 integration against real dev Neon) +
-  Playwright E2E (auth+vault frame + notes create/edit/delete flow);
-  `npm run test` chains all three. GitHub Actions CI runs
-  lint/typecheck/unit/integration/e2e on every PR to dev/main and push to dev.
+- **Testing**: Vitest (14 unit + 26 integration against real dev Neon) +
+  Playwright E2E (auth+vault frame + notes create/edit/delete + explorer
+  folder CRUD + new-note flows); `npm run test` chains all three. GitHub
+  Actions CI runs lint/typecheck/unit/integration/e2e on every PR to dev/main
+  and push to dev.
 - **Workflow contract** in `docs/00-project/WORKFLOW.md` + AGENTS.md: branch
   model (feature/*→dev→main), squash feature→dev, merge-commit dev→main,
   PR-as-debug-record, preview-branch DB staging (one Neon project, branches
@@ -49,10 +58,10 @@ Last updated: 2026-09-09
 
 ## What's next
 
-Phase 03 stages, in order: file explorer + folders API (03.2) → CodeMirror 6
-editor with source/live-preview/reading (03.3) → properties panel (03.4) →
-wikilinks/backlinks/outline (03.5) → search + quick switcher (03.6) → plugin
-framework + graph view (03.7) → public API for the dashboard project (03.8).
+Phase 03 stages, in order: CodeMirror 6 editor with source/live-preview/
+reading (03.3) → properties panel (03.4) → wikilinks/backlinks/outline
+(03.5) → search + quick switcher (03.6) → plugin framework + graph view
+(03.7) → public API for the dashboard project (03.8).
 
 **Blocker**: none.
 

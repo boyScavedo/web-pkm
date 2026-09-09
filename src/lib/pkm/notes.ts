@@ -72,6 +72,7 @@ export interface ListNotesOptions {
   para?: ParaCategory;
   status?: NoteStatus;
   favorite?: boolean;
+  folderId?: number;
   sort?: NoteSort;
   order?: "asc" | "desc";
   limit?: number;
@@ -104,7 +105,7 @@ export interface CreateNoteInput {
   para?: ParaCategory;
   status?: NoteStatus;
   isFavorite?: boolean;
-  folderId?: number;
+  folderId?: number | null;
 }
 
 export interface UpdateNoteInput {
@@ -146,6 +147,9 @@ export async function listNotes(
   if (options.status) filters.push(eq(notes.status, options.status));
   if (options.favorite !== undefined) {
     filters.push(eq(notes.isFavorite, options.favorite));
+  }
+  if (options.folderId !== undefined) {
+    filters.push(eq(notes.folderId, options.folderId));
   }
 
   const where = and(...filters);

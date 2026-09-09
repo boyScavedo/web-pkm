@@ -2,7 +2,8 @@
 
 ## Status: IN PROGRESS
 
-Stage 0 (frame + foundations) complete; stages 03.1-03.8 below.
+Stage 0-1 (frame + foundations, file explorer + folders API) complete;
+stages 03.2-03.8 below.
 
 ## Objective
 
@@ -45,7 +46,7 @@ Each stage ships a load-bench integration test seeding ~10k synthetic notes.
   transition; new-note action links there until the editor lands (03.3)
 - E2E: auth.spec rewritten for the vault; vault.spec added; notes.spec edited
 
-### 03.2 File explorer + folders API
+### 03.2 File explorer + folders API — COMPLETE
 - Service `folders.ts`: create/rename/delete (ltree subtree), move (re-path),
   tree assembly from flat rows
 - API: GET/POST `/api/folders`, PATCH/DELETE `/api/folders/[id]` (ADR-008)
