@@ -30,10 +30,10 @@ Projects Content  Life OS
 | Phase | Name | Status |
 |-------|------|--------|
 | 00 | Research + System Design | DONE |
-| 01 | Foundation (Next.js, Drizzle, Auth, Shell) | PENDING |
-| 02 | PKM Database (schema, migrations, indexes) | PENDING |
-| 03 | Notes (CRUD, properties, folders, tags) | PENDING |
-| 04 | Markdown Editor / Reader (Tiptap) | PENDING |
+| 01 | Foundation (Next.js, Drizzle, Auth, Shell) | DONE |
+| 02 | Notes CRUD (service, API, list/create/edit UI) | DONE |
+| 03 | Markdown Editor / Reader (Tiptap) | PENDING |
+| 04 | Properties, Folders, Tags | PENDING |
 | 05 | Link Graph (wikilinks, backlinks, rename-safe) | PENDING |
 | 06 | Search (FTS, fuzzy, filtered) | PENDING |
 | 07 | Asset System (R2 upload, metadata, CDN) | PENDING |

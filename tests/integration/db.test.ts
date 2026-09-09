@@ -1,14 +1,19 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
+import { getOrCreateDefaultWorkspace } from "@/lib/pkm/notes";
 import { users, workspaces } from "@/lib/db/schema";
 
-// Integration tests run against the real database (development Neon branch),
-// read-only schema assertions. They never mutate user data.
+// Integration tests run against the real database (development Neon branch).
+// Schema assertions are read-only; only the lazy default-workspace provision
+// mutates data (idempotent, matches the app's own first-use behavior).
 const db = getDb();
 
 beforeAll(async () => {
   await db.execute(sql`select 1`);
+  // Phase 02 provisioned the default workspace lazily; make it deterministic
+  // regardless of test-file execution order.
+  await getOrCreateDefaultWorkspace();
 });
 
 describe("database schema", () => {
@@ -60,12 +65,13 @@ describe("database schema", () => {
     expect(rows.rows).toHaveLength(1);
   });
 
-  test("no rows in workspace/users yet (pristine dev db)", async () => {
+  test("no stale users; workspaces contains only the default workspace", async () => {
     const [u, w] = await Promise.all([
       db.select().from(users),
       db.select().from(workspaces),
     ]);
     expect(u).toHaveLength(0);
-    expect(w).toHaveLength(0);
+    // Phase 02 lazily provisions one default workspace on first use; nothing else
+    expect(w.map((row) => row.slug)).toEqual(["default"]);
   });
 });
